@@ -332,6 +332,11 @@ void robotAutoMotorMove(struct Robot * robot, int front_centre_sensor, int left_
     printf("left: %d\n", left_sensor);
     printf("front: %d\n", front_centre_sensor);
 
+    if (front_centre_sensor > 0 && right_sensor > 0 && left_sensor == 0) {
+        robot->direction = UP;
+        return;
+    }
+
     if (robot_prev_direction == LEFT && (front_centre_sensor >= 0 && right_sensor == 4)) {
         robot->direction = LEFT;
         return;
