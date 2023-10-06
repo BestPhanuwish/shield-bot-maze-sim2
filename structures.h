@@ -15,7 +15,7 @@
 #define BLOCK_SIZE 14
 
 #define WALL_WIDTH 3
-#define WALL_HEIGHT 45 // prev 39
+#define WALL_HEIGHT 50 // prev 39
 
 #define DEFAULT_ANGLE_CHANGE 15
 #define DEFAULT_SPEED_CHANGE 1

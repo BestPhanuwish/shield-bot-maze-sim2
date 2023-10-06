@@ -1,9 +1,12 @@
 #include "robot.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "time.h"
 
 void setup_robot(struct Robot *robot){
     robot->x = OVERALL_WINDOW_WIDTH/2-100;
     robot->y = OVERALL_WINDOW_HEIGHT-150;
-    robot->true_x = OVERALL_WINDOW_WIDTH/2-100;
+    robot->true_x = OVERALL_WINDOW_WIDTH/2-107;
     robot->true_y = OVERALL_WINDOW_HEIGHT-150;
     robot->width = ROBOT_WIDTH;
     robot->height = ROBOT_HEIGHT;
@@ -327,16 +330,33 @@ void robotMotorMove(struct Robot * robot, int crashed) {
 
 int robot_is_turning = 0;
 int turning_step = 0;
+int start = 1;
+int r;
 
 void robotAutoMotorMove(struct Robot * robot, int front_centre_sensor, int left_sensor, int right_sensor) {
-
-    if (robot->currentSpeed < 4) {
+    if (robot->currentSpeed < 4 && front_centre_sensor == 0) {
         robot->direction = UP;
-    } else if (right_sensor == 0) {
+        start = 1;
+    } else if (left_sensor > right_sensor) {
         robot->direction = RIGHT;
-    } else if (left_sensor == 0) {
+        start = 1;
+    } else if (right_sensor > left_sensor) {
         robot->direction = LEFT;
+        start = 1;
+    } else if (front_centre_sensor != 0 && left_sensor == 0 && right_sensor == 0) {
+        if (start == 1) {
+            r = rand() % 2;
+            if (r == 0) {
+                direction = LEFT;
+            } else {
+                direction = RIGHT;
+            }
+            start = 0;
+        } else {
+            robot->direction = direction;
+        }
     }
+}
     /*
     if (robot_is_turning == RIGHT && turning_step < 6) {
         robot->direction = RIGHT;
@@ -418,4 +438,3 @@ void robotAutoMotorMove(struct Robot * robot, int front_centre_sensor, int left_
         robot->direction = RIGHT;
     }
     */
-}
