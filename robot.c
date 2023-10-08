@@ -328,22 +328,40 @@ void robotMotorMove(struct Robot * robot, int crashed) {
     robot->y = (int) y_offset;
 }
 
-int robot_is_turning = 0;
-int turning_step = 0;
+int start_turnback = 0;
 int start = 1;
+int direction = 0;
 int r;
 
 void robotAutoMotorMove(struct Robot * robot, int front_centre_sensor, int left_sensor, int right_sensor) {
+    // the process of turning back start here, will turn until there's no wall in the front
+    if (start_turnback == 1 && front_centre_sensor != 0) {
+        // will slow the robot down before turning
+        if (robot->currentSpeed > 0) {
+            robot->direction = DOWN;
+        } else {
+            robot->direction = RIGHT;
+        }
+        return;
+    } else {
+        // if there's no wall then end the process
+        start_turnback = 0;
+    }
+
     if (robot->currentSpeed < 4 && front_centre_sensor == 0) {
+        // go straight if no wall in front
         robot->direction = UP;
         start = 1;
     } else if (left_sensor > right_sensor) {
+        // turn right if close to the wall on the left
         robot->direction = RIGHT;
         start = 1;
     } else if (right_sensor > left_sensor) {
+        // turn left if close to the wall on the right
         robot->direction = LEFT;
         start = 1;
     } else if (front_centre_sensor != 0 && left_sensor == 0 && right_sensor == 0) {
+        // T-junction randomly choose to turn left or right if there's wall in the front and both right, left wall are open
         if (start == 1) {
             r = rand() % 2;
             if (r == 0) {
@@ -354,6 +372,12 @@ void robotAutoMotorMove(struct Robot * robot, int front_centre_sensor, int left_
             start = 0;
         } else {
             robot->direction = direction;
+        }
+    } else if (front_centre_sensor != 0 && left_sensor != 0 && right_sensor != 0) {
+        // Blocked way happened if there's wall in all front, right, and left
+        // then start process of turning back
+        if (start_turnback == 0) {
+            start_turnback = 1;
         }
     }
 }
