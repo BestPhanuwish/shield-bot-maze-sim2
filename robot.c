@@ -334,20 +334,6 @@ int direction = 0;
 int r;
 
 void robotAutoMotorMove(struct Robot * robot, int front_centre_sensor, int left_sensor, int right_sensor) {
-    // the process of turning back start here, will turn until there's no wall in the front
-    if (start_turnback == 1 && front_centre_sensor != 0) {
-        // will slow the robot down before turning
-        if (robot->currentSpeed > 0) {
-            robot->direction = DOWN;
-        } else {
-            robot->direction = RIGHT;
-        }
-        return;
-    } else {
-        // if there's no wall then end the process
-        start_turnback = 0;
-    }
-
     if (robot->currentSpeed < 4 && front_centre_sensor == 0) {
         // go straight if no wall in front
         robot->direction = UP;
@@ -379,6 +365,19 @@ void robotAutoMotorMove(struct Robot * robot, int front_centre_sensor, int left_
         if (start_turnback == 0) {
             start_turnback = 1;
         }
+    }
+
+    // the process of turning back start here, will turn until there's no wall in the front
+    if (start_turnback == 1 && front_centre_sensor != 0) {
+        // will slow the robot down before turning
+        if (robot->currentSpeed > 0) {
+            robot->direction = DOWN;
+        } else {
+            robot->direction = RIGHT;
+        }
+    } else {
+        // if there's no wall then end the process
+        start_turnback = 0;
     }
 }
     /*
