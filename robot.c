@@ -353,12 +353,15 @@ void robotAutoMotorMove(struct Robot * robot, int front_centre_sensor, int left_
         start = 1; 
     } else if (front_centre_sensor != 0 && left_sensor == 0 && right_sensor == 0) {
         // T-junction randomly choose to turn left or right if there's wall in the front and both right, left wall are open
+        int r;
         if (start == 1) {
             r = rand() % 2;
             if (r == 0) {
                 direction = LEFT;
+                start_turn = LEFT;
             } else {
                 direction = RIGHT;
+                start_turn = RIGHT;
             }
             start = 0;
         } else {
@@ -368,21 +371,25 @@ void robotAutoMotorMove(struct Robot * robot, int front_centre_sensor, int left_
         // Blocked way happened if there's wall in all front, right, and left
         // then start process of turning back
         start_turnback = 1;
+        start = 0;
     }
 
     if (left_sensor == 0) {
         // if left wall is open then start turn left process
         if (start_turn == 0)
             start_turn = LEFT;
+        start = 1;
     } else if (right_sensor == 0) {
         // if right wall is open then start turn right process
         if (start_turn == 0)
             start_turn = RIGHT;
+        start = 1;
     }
 
     // edge case when it really close the front wall, forced turn back no matter what
     if (front_centre_sensor >= 3)
         start_turnback = 1;
+        start = 1;
 
     /* Execute Process */
 
@@ -395,9 +402,11 @@ void robotAutoMotorMove(struct Robot * robot, int front_centre_sensor, int left_
         } else {
             robot->direction = start_turn;
         }
+        start = 1;
     } else {
         // if there's no wall then end the process
         start_turn = 0;
+        start = 1;
     }
 
     // the process of turning back start here, will turn until there's no wall in the front
@@ -409,9 +418,11 @@ void robotAutoMotorMove(struct Robot * robot, int front_centre_sensor, int left_
         } else {
             robot->direction = RIGHT;
         }
+        start = 1;
     } else {
         // if there's no wall then end the process
         start_turnback = 0;
+        start = 1;
     }
 }
     /*
