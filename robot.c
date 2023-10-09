@@ -339,7 +339,7 @@ void robotAutoMotorMove(struct Robot * robot, int front_centre_sensor, int left_
     /* Checking Sensor */
 
     if (front_centre_sensor == 0 && robot->angle%90 == 0) {
-        // go straight if no wall in front
+        // go straight if no wall in front and angle of robot is 90 degree (robot is straight)
         if (robot->currentSpeed < 5)
             robot->direction = UP;
         start = 1;
