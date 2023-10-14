@@ -4,7 +4,7 @@
 #include "time.h"
 
 void setup_robot(struct Robot *robot){
-    robot->x = OVERALL_WINDOW_WIDTH/2-100;
+    robot->x = OVERALL_WINDOW_WIDTH/2-107;
     robot->y = OVERALL_WINDOW_HEIGHT-150;
     robot->true_x = OVERALL_WINDOW_WIDTH/2-107;
     robot->true_y = OVERALL_WINDOW_HEIGHT-150;
@@ -289,7 +289,6 @@ void robotUpdate(struct SDL_Renderer * renderer, struct Robot * robot){
 }
 
 
-
 void robotMotorMove(struct Robot * robot, int crashed) {
     double x_offset, y_offset;
     if (crashed)
@@ -328,67 +327,67 @@ void robotMotorMove(struct Robot * robot, int crashed) {
     robot->y = (int) y_offset;
 }
 
+/* Robot Auto Global Variable */
 int start_turn = 0;
 int start_turnback = 0;
-int start = 1;
-int direction = 0;
-int r;
 
 void robotAutoMotorMove(struct Robot * robot, int front_centre_sensor, int left_sensor, int right_sensor) {
 
-    /* Checking Sensor */
+    /* Make robot move straight */
 
     if (front_centre_sensor == 0 && robot->angle%90 == 0) {
         // go straight if no wall in front and angle of robot is 90 degree (robot is straight)
         if (robot->currentSpeed < 5)
             robot->direction = UP;
-        start = 1;
     } else if (left_sensor > right_sensor) {
         // turn right if close to the wall on the left
         robot->direction = RIGHT;
-        start = 1;
-        if (start_turn == 0) {
-            start_turn = RIGHT;
-        }
     } else if (right_sensor > left_sensor) {
         // turn left if close to the wall on the right
         robot->direction = LEFT;
-        start = 1; 
-        if (start_turn == 0) {
-            start_turn = LEFT;
-        }
-    } else if (front_centre_sensor != 0 && left_sensor == 0 && right_sensor == 0) {
-        // T-junction randomly choose to turn left or right if there's wall in the front and both right, left wall are open
-        int r;
-        if (start == 1) {
-            r = rand() % 2;
-            printf("%d",r);
-            if (r == 0) {
-                direction = LEFT;
-                start_turn = LEFT;
-            } else {
-                direction = RIGHT;
-                start_turn = RIGHT;
-            }
-            start = 0;
-        } else {
-            robot->direction = direction;
-        }
-    } else if (front_centre_sensor != 0 && left_sensor != 0 && right_sensor != 0) {
-        // Blocked way happened if there's wall in all front, right, and left
-        // then start process of turning back
-        start_turnback = 1;
+    } else {
+        // edge case where both of the left and right sensor are equal and the wall is empty
+        if (robot->currentSpeed < 5)
+            robot->direction = UP;
     }
 
-    // edge case when it really close the front wall, forced turn back no matter what
-    if (front_centre_sensor >= 3)
-        start_turnback = 1;
+    /* Checking Turning Case */
+
+    if (start_turn == 0 && start_turnback == 0) {
+        // T-junction Case: 
+        if (front_centre_sensor != 0 && left_sensor == 0 && right_sensor == 0) {
+            // randomly choose to turn left or right if there's wall in the front and both right, left wall are open
+            int r = rand() % 2;
+            if (r == 0) {
+                start_turn = LEFT;
+            } else {
+                start_turn = RIGHT;
+            }
+        }
+
+        // Blocked way Case:
+        else if (front_centre_sensor >= 2 && left_sensor != 0 && right_sensor != 0) {
+            // happened if there's wall in all front, right, and left
+            start_turnback = 1;
+        } 
+
+        // 90 degree turn Case:
+        else if (left_sensor == 0 && front_centre_sensor != 0) {
+            // if left wall is open and in front is blocked then start turn left process
+            start_turn = LEFT;
+        } else if (right_sensor == 0 && front_centre_sensor != 0) {
+            // if right wall is open and in front is blocked then start turn right process
+            start_turn = RIGHT;
+        }
+
+        // Branch Case:
+        // We did nothing so the robot can continue straight
+    }
 
     /* Execute Process */
 
     // the process of turning left or right start here, will turn until there's no wall in the front
     if (start_turn > 0 && front_centre_sensor != 0) {
-        start_turnback = 0;
         // will slow the robot down before turning
         if (robot->currentSpeed > 2) {
             robot->direction = DOWN;
@@ -402,7 +401,6 @@ void robotAutoMotorMove(struct Robot * robot, int front_centre_sensor, int left_
 
     // the process of turning back start here, will turn until there's no wall in the front
     if (start_turnback == 1 && front_centre_sensor != 0) {
-        start_turn = 0;
         // will slow the robot down before turning
         if (robot->currentSpeed > 0) {
             robot->direction = DOWN;

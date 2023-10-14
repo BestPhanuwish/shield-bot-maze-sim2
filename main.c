@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
         robotMotorMove(&robot, crashed);
 
         //Check if robot reaches endpoint. and check sensor values
-        if (checkRobotReachedEnd(&robot, OVERALL_WINDOW_WIDTH, OVERALL_WINDOW_HEIGHT/2+100, 10, 100)){
+        if (checkRobotReachedEnd(&robot, (OVERALL_WINDOW_WIDTH/2)-2*WALL_HEIGHT-2*BLOCK_SIZE, (OVERALL_WINDOW_HEIGHT/2)-WALL_HEIGHT-BLOCK_SIZE, WALL_WIDTH, WALL_HEIGHT)){
             end_time = clock();
             msec = (end_time-start_time) * 1000 / CLOCKS_PER_SEC;
             robotSuccess(&robot, msec);
